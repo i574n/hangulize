@@ -215,10 +215,7 @@ func (p procedure) transcribe(subwords []subword.Subword) []subword.Subword {
 
 	for _, sw := range subwords {
 		if sw.Level == 1 {
-			if hasSpace(sw.Word) {
-				swBuf.Write(subword.New(" ", 1))
-			}
-			continue
+			sw.Level = 0
 		}
 		swBuf.Write(sw)
 	}

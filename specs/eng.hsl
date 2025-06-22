@@ -1,0 +1,101 @@
+# Hangulize specification for English (eng)
+# Final Polished Version
+
+lang:
+    id          = "eng"
+    codes       = "en", "eng"
+    english     = "English"
+    korean      = "영어"
+    script      = "Latn"
+    translit    = "english"
+
+config:
+    stage   = "final"
+    authors = "Gemini"
+
+rewrite:
+    # No rewrite rules are needed.
+
+# Transcribe a continuous stream of lowercase ARPAbet phonemes to Hangul Jamo.
+# Rule order is critical: Clusters -> Vowels -> Finals -> Initials
+transcribe:
+    # 1. Common Consonant Clusters (highest priority)
+    "bl" -> "블"
+    "br" -> "브르"
+    "ch" -> "ㅊ"
+    "cl" -> "클"
+    "cr" -> "크르"
+    "dr" -> "드르"
+    "fl" -> "플"
+    "fr" -> "프르"
+    "gl" -> "글"
+    "gr" -> "그르"
+    "jh" -> "ㅈ"
+    "pl" -> "플"
+    "pr" -> "프르"
+    "sh" -> "ㅅ"
+    "sk" -> "스크"
+    "sl" -> "슬"
+    "sm" -> "슴"
+    "sn" -> "슨"
+    "sp" -> "스ㅍ" # "스" + "ㅍ" (initial) for words like "speaking"
+    "st" -> "스ㅌ" # "스" + "ㅌ" (initial) for words like "stand"
+    "th" -> "ㅅ"
+    "tr" -> "트르"
+    "zh" -> "ㅈ"
+
+    # 2. Vowels and Diphthongs
+    # Diphthongs use "Vowel Carriers" (full syllables) for robust composition.
+    "aw" -> "아우"
+    "ay" -> "아이"
+    "ey" -> "에이"
+    "oy" -> "오이"
+    # Simple vowels use plain Jamo.
+    "aa" -> "ㅏ"
+    "ae" -> "ㅐ"
+    "ah" -> "ㅏ"
+    "ao" -> "ㅗ"
+    "eh" -> "ㅔ"
+    "er" -> "ㅓ르"
+    "ih" -> "ㅣ"
+    "iy" -> "ㅣ"
+    "ow" -> "ㅗ"
+    "uh" -> "ㅜ"
+    "uw" -> "ㅜ"
+    "w"  -> "ㅜ"
+    "y"  -> "ㅣ"
+
+    # 3. Consonants (Finals first, using "$")
+    "ng$" -> "-ㅇ"
+    "p$"  -> "-ㅂ"
+    "b$"  -> "-ㅂ"
+    "t$"  -> "-ㄷ"
+    "d$"  -> "-ㄷ"
+    "k$"  -> "-ㄱ"
+    "g$"  -> "-ㄱ"
+    "f$"  -> "-ㅍ"
+    "v$"  -> "-ㅂ"
+    "s$"  -> "-ㅅ"
+    "z$"  -> "-ㅈ"
+    "m$"  -> "-ㅁ"
+    "n$"  -> "-ㄴ"
+    "l$"  -> "-ㄹ"
+    "r$"  -> "-ㄹ"
+    "h$"  -> ""
+
+    # 4. Consonants (Initials/Medials - the general, lowest-priority case)
+    "p"  -> "ㅍ"
+    "b"  -> "ㅂ"
+    "t"  -> "ㅌ"
+    "d"  -> "ㄷ"
+    "k"  -> "ㅋ"
+    "g"  -> "ㄱ"
+    "f"  -> "ㅍ"
+    "v"  -> "ㅂ"
+    "s"  -> "ㅅ"
+    "z"  -> "ㅈ"
+    "h"  -> "ㅎ"
+    "m"  -> "ㅁ"
+    "n"  -> "ㄴ"
+    "l"  -> "ㄹ"
+    "r"  -> "ㄹ"
