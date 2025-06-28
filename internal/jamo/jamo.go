@@ -89,6 +89,11 @@ func (c *composer) write() {
 
 // Compose converts decomposed Jamo phonemes to composed Hangul syllables.
 func (c *composer) Compose() string {
+	var (
+		ch     rune
+		isTail bool
+		err    error
+	)
 
 	var isHangul, isMoeum, isComposed bool
 
@@ -99,18 +104,7 @@ func (c *composer) Compose() string {
 	for {
 		prevScore = score
 
-		ch, isTail, err := c.read()
-
-		// Smart-attach logic: Before normal processing, check if the incoming
-		// character is a vowel-carrier that can be attached to a buffered lead consonant.
-		if c.lmt[lead] != 0 && c.lmt[medial] == 0 {
-			ld, md, tl := hangul.Split(ch)
-			if ld == 'ㅇ' {
-				c.lmt[medial] = md
-				c.lmt[tail] = tl
-				continue // Syllable combined, process the next character.
-			}
-		}
+		ch, isTail, err = c.read()
 
 		if err != nil {
 			break
@@ -132,25 +126,17 @@ func (c *composer) Compose() string {
 
 		// Composed Hangul
 		if isComposed {
-			// Decompose the incoming syllable to its parts.
-			ld, md, tl := hangul.Split(ch)
+			c.write()
 
-			// If a lead consonant is buffered and the incoming syllable is a vowel
-			// carrier (starts with 'ㅇ'), combine them into a single syllable.
-			if c.lmt[lead] != 0 && c.lmt[medial] == 0 && ld == 'ㅇ' {
-				// Attach the incoming vowel and tail to the buffered consonant.
-				c.lmt[medial] = md
-				c.lmt[tail] = tl
+			// Decompose it to merge with a tail later.
+			c.lmt[lead], c.lmt[medial], c.lmt[tail] = hangul.Split(ch)
+
+			if c.lmt[tail] == 0 {
+				score = medial
 			} else {
-				// Otherwise, flush the buffered syllable first.
-				c.write()
-				// Then, buffer the new incoming syllable's parts.
-				c.lmt[lead] = ld
-				c.lmt[medial] = md
-				c.lmt[tail] = tl
+				score = tail
 			}
 
-			score = tail // A composed syllable always fills the buffer up to the tail.
 			continue
 		}
 
@@ -164,13 +150,8 @@ func (c *composer) Compose() string {
 		}
 
 		// If cursor should be moved forward, flush the buffered letter.
-		// The original logic was too simple. This new logic correctly
-		// handles complex compositions.
 		if score <= prevScore {
-			// A tail can follow a medial vowel without flushing.
-			if !(score == tail && prevScore == medial && c.lmt[tail] == 0) {
-				c.write()
-			}
+			c.write()
 		}
 
 		// Buffer the Jamo.
